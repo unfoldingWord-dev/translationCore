@@ -44,16 +44,16 @@ export function login(userObj) {
  */
 export const createRepo = async (user, reponame) => {
   console.log('createRepo: listing repos');
-  let repo = await api.listRepos(user).then(function (repos) {
-    const matchRepo = user.username + '/' + reponame;
-    const found = repos.find((el) => el.full_name === matchRepo);
+  const fullRepoName = user.username + '/' + reponame;
+  let repo = await api.getRepo({ full_name: fullRepoName }, user).then(function (repo) {
+    const found = repo && (repo.full_name === fullRepoName);
 
     if (found) {
-      console.log('createRepo: user repo already exists, no need to recreate: ' + found.full_name);
+      console.log('createRepo: user repo already exists, no need to recreate: ' + repo.full_name);
     } else {
-      console.log('createRepo: could not find user repo: ' + matchRepo);
+      console.log('createRepo: could not find user repo: ' + fullRepoName);
     }
-    return found;
+    return repo;
   });
 
   if (!repo) {
@@ -211,7 +211,7 @@ export const getLocalUser = () => {
 export const findRepo = (user, reponame) => {
   const matchName = user.username + '/' + reponame;
   return new Promise((resolve, reject) => {
-    api.listRepos(user).then(function (repos) {
+    api.listRepos(user).then(function (repos) { // TODO blm: change to use getRepo
       resolve(repos.find((el) => {
         const foundMatch = el.full_name === matchName;
         return (foundMatch);
