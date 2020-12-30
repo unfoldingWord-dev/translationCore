@@ -174,7 +174,7 @@
     "string-punctuation-tokenizer": "2.0.0",
     "sudo-prompt": "6.2.1",
     "tc-electron-env": "0.9.0",
-    "tc-source-content-updater": "0.8.1",
+    "tc-source-content-updater": "0.8.2-alpha.3",
     "tc-strings": "0.1.7",
     "tc-tool": "4.1.0",
     "tc-ui-toolkit": "5.3.3",
