@@ -101,11 +101,11 @@ jobs:
 
       - name: Read version and commit sha
         run: |
-          echo "::set-env name=HASH::$(echo $GITHUB_SHA | cut -c1-7)"
-          echo "::set-env name=APP_VERSION::$(node -p -e "require('./package.json').version")"
+          echo "HASH=$(echo $GITHUB_SHA | cut -c1-7)" >> $GITHUB_ENV
+          echo "APP_VERSION=$(node -p -e "require('./package.json').version")" >> $GITHUB_ENV
 
       - name: Set artifact name
-        run: echo "::set-env name=ARTIFACT_NAME::$(echo "$APP_NAME-linux-x64-$APP_VERSION-$HASH.deb")"
+        run: echo "ARTIFACT_NAME=$(echo "$APP_NAME-linux-x64-$APP_VERSION-$HASH.deb")" >> $GITHUB_ENV
 
       - name: Bundle environment variables
         run: |
@@ -171,11 +171,13 @@ jobs:
 #          submodules: recursive
 
       - name: Read version and commit sha
-        run:
-          echo "::set-env name=HASH::$(node -p -e "'${{ github.sha }}'.substring(0, 7)")"
-          echo "::set-env name=APP_VERSION::$(node -p -e "require('./package.json').version")"
+        shell: bash
+        run: |
+          echo "HASH=$(node -p -e "'${{ github.sha }}'.substring(0, 7)")" >> $GITHUB_ENV
+          echo "APP_VERSION=$(node -p -e "require('./package.json').version")" >> $GITHUB_ENV
 
       - name: Bundle environment variables
+        shell: bash
         run: |
           echo "TC_HELP_DESK_TOKEN=${{ env.TC_HELP_DESK_TOKEN }}" >> .env
           echo "TC_HELP_DESK_EMAIL=${{ env.TC_HELP_DESK_EMAIL }}" >> .env
@@ -193,14 +195,17 @@ jobs:
         run: npm run update-resources
 
       - name: build windows
+        shell: bash
         run: |
           echo "Building $APP_VERSION-$HASH"
           npm run build-win
 #     x64
       - name: Set x64 artifact name
-        run: echo "::set-env name=ARTIFACT_X64::$(echo "${{ env.APP_NAME }}-win-x64-${{ env.APP_VERSION }}-${{ env.HASH }}.exe")"
+        shell: bash
+        run: echo "ARTIFACT_X64=$(echo "${{ env.APP_NAME }}-win-x64-${{ env.APP_VERSION }}-${{ env.HASH }}.exe")" >> $GITHUB_ENV
 
       - name: bundle x64 windows
+        shell: bash
         run: |
           echo "Generating executable ../artifacts/x64/${{ env.ARTIFACT_X64 }}"
           ./node_modules/.bin/gulp release-win64 --out=../artifacts/x64/${{ env.ARTIFACT_X64 }}
@@ -218,9 +223,11 @@ jobs:
           path: ../artifacts/x64/
 #     x32
       - name: Set x32 artifact name
-        run: echo "::set-env name=ARTIFACT_X32::$(echo "${{ env.APP_NAME }}-win-x32-${{ env.APP_VERSION }}-${{ env.HASH }}.exe")"
+        shell: bash
+        run: echo "ARTIFACT_X32=$(echo "${{ env.APP_NAME }}-win-x32-${{ env.APP_VERSION }}-${{ env.HASH }}.exe")" >> $GITHUB_ENV
 
       - name: bundle x32 windows
+        shell: bash
         run: |
           echo "Generating executable ../artifacts/x32/${{ env.ARTIFACT_X32 }}"
           ./node_modules/.bin/gulp release-win32 --out=../artifacts/x32/${{ env.ARTIFACT_X32 }}
@@ -266,11 +273,11 @@ jobs:
 
       - name: Read version and commit sha
         run: |
-          echo "::set-env name=HASH::$(echo $GITHUB_SHA | cut -c1-7)"
-          echo "::set-env name=APP_VERSION::$(node -p -e "require('./package.json').version")"
+          echo "HASH=$(echo $GITHUB_SHA | cut -c1-7)" >> $GITHUB_ENV
+          echo "APP_VERSION=$(node -p -e "require('./package.json').version")" >> $GITHUB_ENV
 
       - name: Set artifact name
-        run: echo "::set-env name=ARTIFACT_NAME::$(echo "$APP_NAME-macos-x64-$APP_VERSION-$HASH.dmg")"
+        run: echo "ARTIFACT_NAME=$(echo "$APP_NAME-macos-x64-$APP_VERSION-$HASH.dmg")" >> $GITHUB_ENV
 
       - name: Bundle environment variables
         run: |
@@ -311,7 +318,7 @@ jobs:
     steps:
       - name: Get short hash
         run: |
-          echo "::set-env name=SHORT_SHA::$(echo $SHA | cut -c1-7)"
+          echo "SHORT_SHA=$(echo $SHA | cut -c1-7)" >> $GITHUB_ENV
 
 #      - name: Dump GitHub context
 #        env:
@@ -339,7 +346,7 @@ jobs:
 
       - name: Get branch name
         if: github.event_name == 'push'
-        run: echo "::set-env name=BRANCH::$(node -p -e "'$REF'.substr(11)")" # strips off "refs/heads/"
+        run: echo "BRANCH=$(node -p -e "'$REF'.substr(11)")" >> $GITHUB_ENV # strips off "refs/heads/"
 
       - name: Notify Zulip of push
         if: github.event_name == 'push'
